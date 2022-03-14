@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server/index.js",
     "live-reload": "nodemon server/index.js",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "engines": {
     "node": "17"
