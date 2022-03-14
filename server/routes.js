@@ -51,7 +51,19 @@ async function routes(request, response) {
     return response.end();
 }
 
+function handleError(error, response) {
+    if (error.message.includes('ENOENT')) {
+        logger.warn(`asset not found: ${error.stack}`);
+        response.writeHead(404);
+        return response.end();
+    }
+
+    response.writeHead(500);
+    logger.error(`caught error on API: ${error.stack}`);
+    return response.end();
+}
+
 export function handler(request, response) {
     return routes(request, response)
-        .catch(error => logger.error(`Something went badddd: ${error.stack}`));
+        .catch(error => handleError(error, response));
 };
