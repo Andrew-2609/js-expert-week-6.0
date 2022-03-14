@@ -14,7 +14,7 @@ async function routes(request, response) {
             'Location': location.home
         });
 
-        response.end();
+        return response.end();
     }
 
     if (method === 'GET' && url === '/home') {
