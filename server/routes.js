@@ -41,7 +41,12 @@ async function routes(request, response) {
         return stream.pipe(response);
     }
 
-    return response.end('Hallo!');
+    if (method === 'GET') {
+        return;
+    }
+
+    response.writeHead(404);
+    return response.end();
 }
 
 export function handler(request, response) {
