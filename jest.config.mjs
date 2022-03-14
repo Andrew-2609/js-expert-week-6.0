@@ -23,5 +23,22 @@ const defaultConfig = {
 };
 
 export default {
-  projects: []
+  projects: [
+    {
+      ...defaultConfig,
+      testEnvironment: "node",
+      displayName: "backend",
+      collectCoverageFrom: [
+        "server/",
+        "!server/index.js"
+      ],
+      transformIgnorePatterns: [
+        ...defaultConfig.transformIgnorePatterns,
+        "public"
+      ],
+      testMatch: [
+        "**/test/**/server/**/*.test.js"
+      ]
+    }
+  ]
 };
