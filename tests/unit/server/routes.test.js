@@ -165,7 +165,18 @@ describe('#Routes - test suite for API response', () => {
     });
 
     describe('exceptions', () => {
-        test.todo(`given an nonexistent file it should respond with 404`);
+        test(`given an nonexistent file it should respond with 404`, async () => {
+            const params = TestUtil.defaultHandleParams();
+
+            params.request.method = 'GET';
+            params.request.url = `/unknown`;
+
+            await handler(...params.values());
+
+            expect(params.response.writeHead).toHaveBeenCalledWith(404);
+            expect(params.response.end).toHaveBeenCalled();
+        });
+
         test.todo(`given an unhandled error it should respond with 500`);
     });
 });
