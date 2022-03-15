@@ -60,7 +60,32 @@ describe('#Routes - test suite for API response', () => {
         expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response);
     });
 
-    test.todo(`GET /controller - should respond with ${pages.controllerHTML} file stream`);
+    test(`GET /controller - should respond with ${pages.controllerHTML} file stream`, async () => {
+        const params = TestUtil.defaultHandleParams();
+
+        params.request.method = 'GET';
+        params.request.url = '/controller';
+
+        const mockFileStream = TestUtil.generateReadableStream(['anything']);
+
+        jest.spyOn(
+            Controller.prototype,
+            Controller.prototype.getFileStream.name
+        ).mockResolvedValue({
+            stream: mockFileStream
+        });
+
+        jest.spyOn(
+            mockFileStream,
+            'pipe'
+        ).mockReturnValue();
+
+        await handler(...params.values());
+
+        expect(Controller.prototype.getFileStream).toBeCalledWith(pages.controllerHTML);
+        expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response);
+    });
+
     test.todo(`GET /file.ext - should respond with file stream`);
     test.todo(`GET /unknown - should respond with 404`);
 
