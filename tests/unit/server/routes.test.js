@@ -155,7 +155,7 @@ describe('#Routes - test suite for API response', () => {
     test(`POST /unknown - should respond with 404`, async () => {
         const params = TestUtil.defaultHandleParams();
 
-        params.request.method = 'GET';
+        params.request.method = 'POST';
         params.request.url = `/unknown`;
 
         await handler(...params.values());
