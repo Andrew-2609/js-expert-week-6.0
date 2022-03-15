@@ -13,5 +13,10 @@ describe('#Routes - test suite for API response', () => {
     test.todo(`GET /home - should respond with ${pages.homeHTML} file stream`);
     test.todo(`GET /controller - should respond with ${pages.controllerHTML} file stream`);
     test.todo(`GET /file.ext - should respond with file stream`);
-    test.todo(`GET /unknown - should respond with 404`)
+    test.todo(`GET /unknown - should respond with 404`);
+
+    describe('exceptions', () => {
+        test.todo(`given an nonexistent file it should respond with 404`);
+        test.todo(`given an unhandled error it should respond with 500`);
+    });
 });
