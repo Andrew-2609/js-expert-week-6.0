@@ -1,4 +1,4 @@
-import { jest, expect, describe, test, beforeEach } from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import config from '../../../server/config.js';
 import { handler } from '../../../server/routes.js';
 import TestUtil from '../_util/testUtil.js';
