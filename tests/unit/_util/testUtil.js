@@ -36,8 +36,8 @@ export default class TestUtil {
                 url: ''
             }),
             response: Object.assign(responseStream, {
-                writeHead: jest.fn,
-                end: jest.fn
+                writeHead: jest.fn(),
+                end: jest.fn()
             })
         };
 
