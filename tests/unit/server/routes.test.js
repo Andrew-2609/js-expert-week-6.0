@@ -86,7 +86,7 @@ describe('#Routes - test suite for API response', () => {
         expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response);
     });
 
-    test(`GET /file.ext - should respond with file stream`, async () => {
+    test(`GET /index.html - should respond with file stream`, async () => {
         const params = TestUtil.defaultHandleParams();
         const fileName = '/index.html';
 
