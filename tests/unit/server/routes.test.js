@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import config from '../../../server/config.js';
+import { Controller } from '../../../server/controller.js';
 import { handler } from '../../../server/routes.js';
 import TestUtil from '../_util/testUtil.js';
 
@@ -30,11 +31,35 @@ describe('#Routes - test suite for API response', () => {
             302,
             { 'Location': location.home }
         );
-
         expect(params.response.end).toBeCalled();
     });
 
-    test.todo(`GET /home - should respond with ${pages.homeHTML} file stream`);
+    test(`GET /home - should respond with ${pages.homeHTML} file stream`, async () => {
+        const params = TestUtil.defaultHandleParams();
+
+        params.request.method = 'GET';
+        params.request.url = '/home';
+
+        const mockFileStream = TestUtil.generateReadableStream(['anything']);
+
+        jest.spyOn(
+            Controller.prototype,
+            Controller.prototype.getFileStream.name
+        ).mockResolvedValue({
+            stream: mockFileStream
+        });
+
+        jest.spyOn(
+            mockFileStream,
+            'pipe'
+        ).mockReturnValue();
+
+        await handler(...params.values());
+
+        expect(Controller.prototype.getFileStream).toBeCalledWith(pages.homeHTML);
+        expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response);
+    });
+
     test.todo(`GET /controller - should respond with ${pages.controllerHTML} file stream`);
     test.todo(`GET /file.ext - should respond with file stream`);
     test.todo(`GET /unknown - should respond with 404`);
