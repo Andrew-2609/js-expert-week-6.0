@@ -152,7 +152,7 @@ describe('#Routes - test suite for API response', () => {
         );
     });
 
-    test(`GET /unknown - should respond with 404`, async () => {
+    test(`POST /unknown - should respond with 404`, async () => {
         const params = TestUtil.defaultHandleParams();
 
         params.request.method = 'GET';
