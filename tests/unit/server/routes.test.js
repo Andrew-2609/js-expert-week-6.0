@@ -171,6 +171,11 @@ describe('#Routes - test suite for API response', () => {
             params.request.method = 'GET';
             params.request.url = `/unknown`;
 
+            jest.spyOn(
+                Controller.prototype,
+                Controller.prototype.getFileStream.name
+            ).mockRejectedValue(new Error('Error: ENOENT'));
+
             await handler(...params.values());
 
             expect(params.response.writeHead).toHaveBeenCalledWith(404);
