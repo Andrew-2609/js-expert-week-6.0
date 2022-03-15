@@ -28,7 +28,6 @@ export default class TestUtil {
         const requestStream = TestUtil.generateReadableStream(['request body']);
         const responseStream = TestUtil.generateWritableStream(() => { });
 
-
         const data = {
             request: Object.assign(requestStream, {
                 headers: {},
