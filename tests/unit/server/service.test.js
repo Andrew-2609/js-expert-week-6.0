@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import fs from 'fs';
+import fsPromises from 'fs/promises';
+import { join } from 'path';
+import config from '../../../server/config.js';
 import { Service } from '../../../server/service.js';
 import TestUtil from '../_util/testUtil.js';
+
+const { dir: { publicDirectory } } = config;
 
 describe('# Service - test suite for business and processing rules', () => {
     beforeEach(() => {
@@ -21,6 +26,23 @@ describe('# Service - test suite for business and processing rules', () => {
         const fileStream = service.createFileStream('anyfile');
 
         expect(fileStream).toEqual(mockFileStream);
+    });
+
+    test('should get the file info including name and type', async () => {
+        const fileName = 'anyfile.html';
+        const service = new Service();
+
+        jest.spyOn(
+            fsPromises,
+            'access'
+        ).mockReturnValue();
+
+        const fileInfo = await service.getFileInfo(fileName);
+
+        expect(fileInfo).toEqual({
+            name: join(publicDirectory, fileName),
+            type: '.html'
+        });
     });
 
     test('should get a file stream from file info', async () => {
