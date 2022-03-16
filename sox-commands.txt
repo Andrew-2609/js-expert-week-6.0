@@ -1,0 +1,23 @@
+# Example for an audio in '/songs' folder
+
+sox \
+    --i \
+    "audio/songs/conversation.mp3"
+
+# Example for an audio in '/fx' folder
+
+sox \
+    --i \
+    "audio/fx/Boo! Sound Effect (128 kbps).mp3"
+
+# Example of how to handle future audios
+# first half is the input file
+# second half is the output file
+
+sox \
+    -v 0.99 \
+    -t mp3 \
+    "audio/fx/My New Effect.mp3" \
+    -r 48000 \
+    -t mp3 \
+    "output.mp3"
