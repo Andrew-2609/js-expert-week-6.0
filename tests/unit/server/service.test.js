@@ -25,7 +25,7 @@ describe('# Service - test suite for business and processing rules', () => {
 
         const fileStream = service.createFileStream('anyfile');
 
-        expect(fileStream).toEqual(mockFileStream);
+        expect(fileStream).toStrictEqual(mockFileStream);
     });
 
     test('should get the file info including name and type', async () => {
@@ -39,7 +39,7 @@ describe('# Service - test suite for business and processing rules', () => {
 
         const fileInfo = await service.getFileInfo(fileName);
 
-        expect(fileInfo).toEqual({
+        expect(fileInfo).toStrictEqual({
             name: join(publicDirectory, fileName),
             type: '.html'
         });
@@ -64,7 +64,7 @@ describe('# Service - test suite for business and processing rules', () => {
 
         const fileStream = await service.getFileStream('anyFile');
 
-        expect(fileStream).toEqual({
+        expect(fileStream).toStrictEqual({
             stream: mockFileStream,
             type: '.html'
         });

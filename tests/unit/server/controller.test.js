@@ -25,7 +25,7 @@ describe('# Controller - test suite for intermediate layer', () => {
         const fileStream = await controller.getFileStream('anything');
 
         expect(Service.prototype.getFileStream).toBeCalledWith('anything');
-        expect(fileStream).toEqual({
+        expect(fileStream).toStrictEqual({
             stream: mockFileStream,
             type: expectedType
         });
