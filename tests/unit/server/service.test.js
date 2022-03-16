@@ -35,7 +35,7 @@ describe('# Service - test suite for business and processing rules', () => {
         jest.spyOn(
             fsPromises,
             fs.promises.access.name
-        ).mockReturnValue();
+        ).mockResolvedValue();
 
         const fileInfo = await service.getFileInfo(fileName);
 
