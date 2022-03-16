@@ -4,8 +4,9 @@ import { fileURLToPath } from 'url';
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const root = join(currentDir, '../');
 
-const publicDirectory = join(root, '/public');
-const audioDirectory = join(root, '/audio');
+const publicDirectory = join(root, 'public');
+const audioDirectory = join(root, 'audio');
+const soundsDirectory = join(audioDirectory, 'songs');
 
 export default {
     port: process.env.PORT || 3000,
@@ -13,7 +14,6 @@ export default {
         root,
         publicDirectory,
         audioDirectory,
-        songsDirectory: join(audioDirectory, 'songs'),
         fxDirectory: join(audioDirectory, 'fx')
     },
     pages: {
@@ -28,6 +28,10 @@ export default {
             '.html': 'text/html',
             '.css': 'text/css',
             '.js': 'text/javascript'
-        }
+        },
+        audioMediaType: 'mp3',
+        soundVolume: '0.99',
+        fallbackBitRate: '128000',
+        englishConversation: join(soundsDirectory, 'conversation.mp3')
     }
 };
