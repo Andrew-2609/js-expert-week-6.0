@@ -10,7 +10,7 @@ sox \
     --i \
     "audio/fx/Boo! Sound Effect (128 kbps).mp3"
 
-# Example of how to handle future audios
+# Example of how to handle future audios to fit the standard used in the project
 # first half is the input file
 # second half is the output file
 
@@ -21,3 +21,10 @@ sox \
     -r 48000 \
     -t mp3 \
     "output.mp3"
+
+# How to get the bitratio of an audio
+
+sox \
+    --i \
+    -B \
+    "audio/fx/Boo! Sound Effect (128 kbps).mp3"
