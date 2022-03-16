@@ -20,7 +20,7 @@ describe('# Service - test suite for business and processing rules', () => {
 
         jest.spyOn(
             fs,
-            'createReadStream'
+            fs.createReadStream.name
         ).mockReturnValue(mockFileStream);
 
         const fileStream = service.createFileStream('anyfile');
@@ -34,7 +34,7 @@ describe('# Service - test suite for business and processing rules', () => {
 
         jest.spyOn(
             fsPromises,
-            'access'
+            fs.promises.access.name
         ).mockReturnValue();
 
         const fileInfo = await service.getFileInfo(fileName);
