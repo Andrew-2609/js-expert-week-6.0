@@ -1,7 +1,9 @@
-import config from './config.js';
+import { randomUUID } from 'crypto';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
-import { join, extname } from 'path';
+import { extname, join } from 'path';
+import { PassThrough } from 'stream';
+import config from './config.js';
 
 const {
     dir: {
@@ -13,6 +15,17 @@ export class Service {
 
     constructor() {
         this.clientStreams = new Map();
+    }
+
+    getClientStream() {
+        const id = randomUUID();
+        const clientStream = new PassThrough();
+        this.clientStreams.set(id, clientStream);
+
+        return {
+            id,
+            clientStream
+        };
     }
 
     createFileStream(filename) {
