@@ -17,7 +17,7 @@ export class Service {
         this.clientStreams = new Map();
     }
 
-    getClientStream() {
+    createClientStream() {
         const id = randomUUID();
         const clientStream = new PassThrough();
         this.clientStreams.set(id, clientStream);
