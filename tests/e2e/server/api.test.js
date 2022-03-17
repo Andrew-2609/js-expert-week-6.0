@@ -9,6 +9,8 @@ const RETENTION_DATA_PERIOD = 200 // ms
 const getAvailablePort = portfinder.getPortPromise;
 
 describe('# API E2E Suite Test', () => {
+    const commandResponse = JSON.stringify({ result: 'ok' });
+    const possibleCommands = { start: 'start', stop: 'stop' };
 
     function pipeAndReadStreamData(stream, onChunk) {
         const transform = new Transform({
@@ -21,7 +23,7 @@ describe('# API E2E Suite Test', () => {
     }
 
     describe('client workflow', () => {
-
+         // this function is responsible for isolating the test servers
         async function getTestServer() {
             const getSuperTest = port => supertest(`http://localhost:${port}`);
             const port = await getAvailablePort();
@@ -41,7 +43,16 @@ describe('# API E2E Suite Test', () => {
             });
         }
 
-        test('it should not receive data stream is proccess is not playing', async () => {
+        async function commandSender(testServer) {
+            return {
+                async send(command) {
+                    const response = await testServer.post('/controller').send({ command });
+                    expect(response.text).toStrictEqual(commandResponse);
+                }
+            }
+        }
+
+        test('it should not receive data stream if proccess is not playing', async () => {
             const server = await getTestServer();
             const onChunkFn = jest.fn();
 
@@ -56,6 +67,28 @@ describe('# API E2E Suite Test', () => {
             expect(onChunkFn).not.toHaveBeenCalled();
         });
 
-        test.todo('it should receive data stream is proccess is playing');
+        test('it should receive data stream if proccess is playing', async () => {
+            const server = await getTestServer();
+            const onChunkFn = jest.fn();
+            const { send } = await commandSender(server.testServer);
+
+            pipeAndReadStreamData(
+                server.testServer.get('/stream'),
+                onChunkFn
+            );
+
+            await send(possibleCommands.start);
+
+            await setTimeout(RETENTION_DATA_PERIOD);
+
+            await send(possibleCommands.stop);
+
+            const [[buffer]] = onChunkFn.mock.calls
+
+            expect(buffer).toBeInstanceOf(Buffer);
+            expect(buffer.length).toBeGreaterThan(1000)
+
+            server.kill();
+        });
     });
 });
