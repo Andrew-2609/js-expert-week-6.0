@@ -1,9 +1,12 @@
 import childProcess from 'child_process';
 import { randomUUID } from 'crypto';
+import { once } from 'events';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import { extname, join } from 'path';
-import { PassThrough } from 'stream';
+import { PassThrough, Writable } from 'stream';
+import streamPromises from 'stream/promises';
+import Throttle from 'throttle';
 import config from './config.js';
 import { logger } from './util.js';
 
@@ -12,7 +15,9 @@ const {
         publicDirectory
     },
     constants: {
-        fallbackBitRate
+        fallbackBitRate,
+        bitrateDivisor,
+        englishConversation
     }
 } = config;
 
@@ -20,6 +25,11 @@ export class Service {
 
     constructor() {
         this.clientStreams = new Map();
+        this.currentSound = englishConversation;
+        this.currentBitrate = 0;
+        this.throttleTransform = {};
+        this.currentReadable = {};
+        this.startStreamming();
     }
 
     createClientStream() {
@@ -42,6 +52,36 @@ export class Service {
         return childProcess.spawn('sox', args);
     }
 
+    broadcast() {
+        return new Writable({
+            write: (chunk, _, callback) => {
+                for (const [id, stream] of this.clientStreams) {
+                    // if the client has disconnected, we shouldn't send data to him anymore
+                    if (stream.writableEnded) {
+                        this.clientStreams.delete(id);
+                        continue;
+                    }
+
+                    stream.write(chunk);
+                }
+
+                callback();
+            }
+        });
+    }
+
+    async startStreamming() {
+        logger.info(`starting with ${this.currentSound}`);
+        const bitrate = this.currentBitrate = (await this.getBitrate(this.currentSound)) / bitrateDivisor;
+        const throttleTransform = this.throttleTransform = new Throttle(bitrate);
+        const soundReadable = this.currentReadable = this.createFileStream(this.currentSound);
+        return streamPromises.pipeline(
+            soundReadable,
+            throttleTransform,
+            this.broadcast()
+        );
+    }
+
     async getBitrate(sound) {
         try {
             const args = [
@@ -56,11 +96,16 @@ export class Service {
                 // stdin // every input
             } = this._executeSoxCommand(args);
 
+            await Promise.all([
+                once(stdout, 'readable'),
+                once(stderr, 'readable')
+            ]);
+
             const [success, error] = [stdout, stderr].map(stream => stream.read());
 
             if (error) return await Promise.reject(error);
 
-            return success.toSring().trim().replace(/k/, '000');
+            return success.toString().trim().replace(/k/, '000');
         } catch (error) {
             logger.error(`something went bananas with the bitrate: ${error}`);
             return fallbackBitRate;
