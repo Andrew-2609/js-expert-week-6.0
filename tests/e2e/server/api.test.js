@@ -23,7 +23,7 @@ describe('# API E2E Suite Test', () => {
     }
 
     describe('client workflow', () => {
-         // this function is responsible for isolating the test servers
+        // this function is responsible for isolating the test servers
         async function getTestServer() {
             const getSuperTest = port => supertest(`http://localhost:${port}`);
             const port = await getAvailablePort();
