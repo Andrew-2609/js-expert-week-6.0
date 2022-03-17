@@ -176,7 +176,7 @@
   <script>
     // bypass to prevent cache
     window.onload = () => {
-      document.getElementById('audio').src = '/stream?cache=' + Date.now();
+      document.getElementById('audio').src = '/stream?id=' + Date.now();
     };
   </script>
 </body>
