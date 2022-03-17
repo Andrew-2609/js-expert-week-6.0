@@ -28,6 +28,10 @@ export class Service {
         };
     }
 
+    removeClientStream(id) {
+        this.clientStreams.delete(id);
+    }
+
     createFileStream(filename) {
         return fs.createReadStream(filename);
     }
