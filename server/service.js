@@ -1,13 +1,18 @@
+import childProcess from 'child_process';
 import { randomUUID } from 'crypto';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import { extname, join } from 'path';
 import { PassThrough } from 'stream';
 import config from './config.js';
+import { logger } from './util.js';
 
 const {
     dir: {
         publicDirectory
+    },
+    constants: {
+        fallbackBitRate
     }
 } = config;
 
@@ -30,6 +35,36 @@ export class Service {
 
     removeClientStream(id) {
         this.clientStreams.delete(id);
+    }
+
+    // '_' indicates a private function
+    _executeSoxCommand(args) {
+        return childProcess.spawn('sox', args);
+    }
+
+    async getBitrate(sound) {
+        try {
+            const args = [
+                '--i', // info
+                '-B', // bit rate
+                sound
+            ];
+
+            const {
+                stderr, // every error
+                stdout, // every log
+                // stdin // every input
+            } = this._executeSoxCommand(args);
+
+            const [success, error] = [stdout, stderr].map(stream => stream.read());
+
+            if (error) return await Promise.reject(error);
+
+            return success.toSring().trim().replace(/k/, '000');
+        } catch (error) {
+            logger.error(`something went bananas with the bitrate: ${error}`);
+            return fallbackBitRate;
+        }
     }
 
     createFileStream(filename) {
