@@ -23,4 +23,20 @@ export class Controller {
             onClose
         }
     }
+
+    async handleCommand({ command }) {
+        logger.info(`command received: ${command}`);
+        const result = { result: 'ok' }
+        const cmd = new String(command).toLowerCase();
+
+        if (cmd.includes('start')) {
+            this.service.startStreamming();
+            return result;
+        }
+
+        if (cmd.includes('stop')) {
+            this.service.stopStreamming();
+            return result;
+        }
+    }
 };

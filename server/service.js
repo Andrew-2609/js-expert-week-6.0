@@ -29,7 +29,6 @@ export class Service {
         this.currentBitrate = 0;
         this.throttleTransform = {};
         this.currentReadable = {};
-        this.startStreamming();
     }
 
     createClientStream() {
@@ -70,18 +69,6 @@ export class Service {
         });
     }
 
-    async startStreamming() {
-        logger.info(`starting with ${this.currentSound}`);
-        const bitrate = this.currentBitrate = (await this.getBitrate(this.currentSound)) / bitrateDivisor;
-        const throttleTransform = this.throttleTransform = new Throttle(bitrate);
-        const soundReadable = this.currentReadable = this.createFileStream(this.currentSound);
-        return streamPromises.pipeline(
-            soundReadable,
-            throttleTransform,
-            this.broadcast()
-        );
-    }
-
     async getBitrate(sound) {
         try {
             const args = [
@@ -110,6 +97,22 @@ export class Service {
             logger.error(`something went bananas with the bitrate: ${error}`);
             return fallbackBitRate;
         }
+    }
+
+    async startStreamming() {
+        logger.info(`starting with ${this.currentSound}`);
+        const bitrate = this.currentBitrate = (await this.getBitrate(this.currentSound)) / bitrateDivisor;
+        const throttleTransform = this.throttleTransform = new Throttle(bitrate);
+        const soundReadable = this.currentReadable = this.createFileStream(this.currentSound);
+        return streamPromises.pipeline(
+            soundReadable,
+            throttleTransform,
+            this.broadcast()
+        );
+    }
+
+    stopStreamming() {
+        this.throttleTransform?.end?.();
     }
 
     createFileStream(filename) {
