@@ -1,7 +1,7 @@
+import events from 'events';
 import config from './config.js';
 import { Controller } from './controller.js';
 import { logger } from './util.js';
-import { once } from 'events';
 
 const {
     location,
@@ -60,7 +60,7 @@ async function routes(request, response) {
     }
 
     if (method === 'POST' && url === '/controller') {
-        const data = await once(request, 'data');
+        const data = await events.once(request, 'data');
         const item = JSON.parse(data);
         const result = await controller.handleCommand(item);
         return response.end(JSON.stringify(result));
