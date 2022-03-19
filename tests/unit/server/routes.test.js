@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
+import events from 'events';
 import config from '../../../server/config.js';
 import { Controller } from '../../../server/controller.js';
 import { handler } from '../../../server/routes.js';
@@ -162,6 +163,37 @@ describe('#Routes - test suite for API response', () => {
 
         expect(params.response.writeHead).toHaveBeenCalledWith(404);
         expect(params.response.end).toHaveBeenCalled();
+    });
+
+    test(`POST /controller - should respond to command with result ok`, async () => {
+        const params = TestUtil.defaultHandleParams();
+        const command = { command: 'any' };
+        const result = { result: 'ok' };
+
+        params.request.method = 'POST';
+        params.request.url = `/controller`;
+
+        jest.spyOn(
+            events,
+            events.once.name
+        ).mockResolvedValue(command);
+
+        jest.spyOn(
+            JSON,
+            JSON.parse.name
+        ).mockReturnValue(command);
+
+        jest.spyOn(
+            Controller.prototype,
+            Controller.prototype.handleCommand.name
+        ).mockResolvedValue(result);
+
+        await handler(...params.values());
+
+        expect(events.once).toHaveBeenCalledWith(params.request, 'data');
+        expect(JSON.parse).toHaveBeenCalledWith(command);
+        expect(Controller.prototype.handleCommand).toHaveBeenCalledWith(command);
+        expect(params.response.end).toHaveBeenCalledWith(JSON.stringify(result));
     });
 
     describe('exceptions', () => {
