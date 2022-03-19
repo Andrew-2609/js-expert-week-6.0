@@ -165,6 +165,41 @@ describe('#Routes - test suite for API response', () => {
         expect(params.response.end).toHaveBeenCalled();
     });
 
+    test(`GET /stream - should create client stream and pipe it`, async () => {
+        const params = TestUtil.defaultHandleParams();
+
+        const mockFileStream = TestUtil.generateReadableStream(['anything']);
+        const onCloseFn = jest.fn();
+
+        params.request.method = 'GET';
+        params.request.url = '/stream';
+
+        jest.spyOn(
+            Controller.prototype,
+            Controller.prototype.createClientStream.name
+        ).mockReturnValue({
+            stream: mockFileStream,
+            onClose: onCloseFn
+        });
+
+        jest.spyOn(
+            mockFileStream,
+            'pipe'
+        ).mockReturnValue();
+
+        await handler(...params.values());
+
+        expect(params.response.writeHead).toHaveBeenCalledWith(
+            200,
+            {
+                'Content-Type': 'audio/mpeg',
+                'Accept-Ranges': 'bytes'
+            }
+        );
+
+        expect(mockFileStream.pipe).toHaveBeenCalledWith(params.response);
+    });
+
     test(`POST /controller - should respond to command with result ok`, async () => {
         const params = TestUtil.defaultHandleParams();
         const command = { command: 'any' };
