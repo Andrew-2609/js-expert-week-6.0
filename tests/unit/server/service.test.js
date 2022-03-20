@@ -4,13 +4,13 @@ import fs from 'fs';
 import fsPromises from 'fs/promises';
 import { join } from 'path';
 import { PassThrough, Writable } from 'stream';
-import { pipeline } from 'stream/promises';
+import StreamPromises from 'stream/promises';
 import config from '../../../server/config.js';
 import { Service } from '../../../server/service.js';
 import { logger } from '../../../server/util.js';
 import TestUtil from '../_util/testUtil.js';
 
-const { dir: { publicDirectory }, constants: { fallbackBitRate } } = config;
+const { dir: { publicDirectory }, constants: { fallbackBitRate, englishConversation } } = config;
 
 describe('# Service - test suite for business and processing rules', () => {
     beforeEach(() => {
@@ -65,7 +65,7 @@ describe('# Service - test suite for business and processing rules', () => {
 
         const broadcast = service.broadcast();
 
-        await pipeline(mockReadableStream, broadcast);
+        await StreamPromises.pipeline(mockReadableStream, broadcast);
 
         expect(broadcast).toBeInstanceOf(Writable);
     });
@@ -94,7 +94,7 @@ describe('# Service - test suite for business and processing rules', () => {
 
         const broadcast = service.broadcast();
 
-        await pipeline(mockReadableStream, broadcast);
+        await StreamPromises.pipeline(mockReadableStream, broadcast);
 
         expect(broadcast).toBeInstanceOf(Writable);
         expect(Map.prototype.delete).toHaveBeenCalledWith(uuid);
@@ -198,5 +198,41 @@ describe('# Service - test suite for business and processing rules', () => {
             stream: mockFileStream,
             type: '.html'
         });
+    });
+
+    test('should start streamming', async () => {
+        const service = new Service();
+        const mockFileStream = TestUtil.generateReadableStream(['anything']);
+
+        jest.spyOn(
+            logger,
+            'info'
+        );
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype.getBitrate.name
+        ).mockResolvedValue('128000');
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype.createClientStream.name
+        ).mockReturnValue(mockFileStream);
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype.broadcast.name
+        );
+
+        jest.spyOn(
+            StreamPromises,
+            'pipeline'
+        ).mockResolvedValue(mockFileStream);
+
+        const stream = await service.startStreamming();
+
+        expect(stream).toEqual(mockFileStream);
+        expect(Service.prototype.broadcast).toHaveBeenCalledTimes(1);
+        expect(logger.info).toHaveBeenCalledWith(`starting with ${englishConversation}`);
     });
 });
