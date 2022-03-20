@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
-import crypto from 'crypto';
+import crypto, { randomUUID } from 'crypto';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import { join } from 'path';
@@ -54,7 +54,7 @@ describe('# Service - test suite for business and processing rules', () => {
     test('should broadcast', async () => {
         const service = new Service();
         const data = 'anything';
-        
+
         const mockReadableStream = TestUtil.generateReadableStream([data])
         const mockWritableStream = TestUtil.generateWritableStream((chunk) => {
             expect(chunk.toString()).toBe(data);
@@ -67,6 +67,37 @@ describe('# Service - test suite for business and processing rules', () => {
         await pipeline(mockReadableStream, broadcast);
 
         expect(broadcast).toBeInstanceOf(Writable);
+    });
+
+    test('should delete client stream on writable ended', async () => {
+        const service = new Service();
+        const data = 'anything';
+        const uuid = randomUUID();
+
+        const mockReadableStream = TestUtil.generateReadableStream([data]);
+        const mockWritableStream = TestUtil.generateWritableStream();
+
+        jest.spyOn(
+            Map.prototype,
+            Map.prototype.delete.name
+        );
+
+        jest.spyOn(
+            Map.prototype,
+            Map.prototype.set.name
+        );
+
+        service.clientStreams.set(uuid, mockWritableStream);
+
+        mockWritableStream.end(); // end the stream
+
+        const broadcast = service.broadcast();
+
+        await pipeline(mockReadableStream, broadcast);
+
+        expect(broadcast).toBeInstanceOf(Writable);
+        expect(Map.prototype.delete).toHaveBeenCalledWith(uuid);
+        expect(service.clientStreams.size).toBe(0);
     });
 
     test('should create a file stream and return it', async () => {
