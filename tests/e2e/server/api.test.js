@@ -43,6 +43,7 @@ describe('# API E2E Suite Test', () => {
             });
         }
 
+        // this function is responsible for sending the given commands
         async function commandSender(testServer) {
             return {
                 async send(command) {
