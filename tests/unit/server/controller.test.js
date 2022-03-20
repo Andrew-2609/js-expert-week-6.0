@@ -131,4 +131,31 @@ describe('# Controller - test suite for intermediate layer', () => {
         expect(Service.prototype.stopStreamming).toHaveBeenCalled();
         expect(result).toStrictEqual({ result: 'ok' });
     });
+
+    test('should return undefined when nonexistent command is given', async () => {
+        const { command } = { command: 'stup' };
+        const infoMessage = `command received: ${command.command}`;
+        const controller = new Controller();
+
+        jest.spyOn(
+            logger,
+            'info'
+        );
+
+        jest.spyOn(
+            String.prototype,
+            String.prototype.toLowerCase.name,
+        ).mockReturnValue(command);
+
+        jest.spyOn(
+            String.prototype,
+            String.prototype.includes.name
+        );
+
+        const result = await controller.handleCommand('anything');
+
+        expect(logger.info).toHaveBeenCalledWith(infoMessage);
+        expect(String.prototype.includes).not.toHaveBeenCalledWith(command);
+        expect(result).toBeUndefined();
+    });
 });
