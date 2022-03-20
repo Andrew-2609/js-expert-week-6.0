@@ -100,6 +100,26 @@ describe('# Service - test suite for business and processing rules', () => {
         expect(service.clientStreams.size).toBe(0);
     });
 
+    test('should get the bitrate of a given sound', async () => {
+        const service = new Service();
+        const sound = 'anySound.mp3';
+        const args = ['--i', '-B', sound];
+        const bitrate = ['128k', '128000'];
+
+        const stderr = TestUtil.generateReadableStream("");
+        const stdout = TestUtil.generateReadableStream([bitrate[0]]);
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype._executeSoxCommand.name
+        ).mockReturnValue({ stderr, stdout });
+
+        const result = await service.getBitrate(sound);
+
+        expect(Service.prototype._executeSoxCommand).toHaveBeenCalledWith(args);
+        expect(result).toBe(bitrate[1]);
+    });
+
     test('should create a file stream and return it', async () => {
         const mockFileStream = TestUtil.generateReadableStream(['anything']);
         const service = new Service();
