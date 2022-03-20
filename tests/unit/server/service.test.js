@@ -17,8 +17,8 @@ describe('# Service - test suite for business and processing rules', () => {
     });
 
     test('should create the client stream with a PassThrough', async () => {
-        const id = 1;
         const service = new Service();
+        const id = 1;
 
         jest.spyOn(
             crypto,
@@ -34,6 +34,20 @@ describe('# Service - test suite for business and processing rules', () => {
 
         expect(clientStream.id).toBe(id);
         expect(clientStream.clientStream).toBeInstanceOf(PassThrough);
+    });
+
+    test('should remove a client stream by its id', async () => {
+        const service = new Service();
+        const id = 1;
+
+        jest.spyOn(
+            Map.prototype,
+            Map.prototype.delete.name
+        );
+
+        service.removeClientStream(id);
+
+        expect(Map.prototype.delete).toHaveBeenCalledWith(id);
     });
 
     test('should create a file stream and return it', async () => {
