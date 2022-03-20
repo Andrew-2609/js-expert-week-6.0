@@ -53,6 +53,17 @@ describe('# API E2E Suite Test', () => {
             }
         }
 
+        test('should redirect user to /home endpoint with status 302', async () => {
+            const server = await getTestServer();
+
+            const response = await server.testServer.get('/');
+
+            expect(response.status).toBe(302);
+            expect(response.header.location).toBe('/home');
+
+            server.kill();
+        });
+
         test('it should not receive data stream if proccess is not playing', async () => {
             const server = await getTestServer();
             const onChunkFn = jest.fn();
