@@ -3,7 +3,8 @@ import crypto from 'crypto';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import { join } from 'path';
-import { PassThrough } from 'stream';
+import { PassThrough, Writable } from 'stream';
+import { pipeline } from 'stream/promises';
 import config from '../../../server/config.js';
 import { Service } from '../../../server/service.js';
 import TestUtil from '../_util/testUtil.js';
@@ -48,6 +49,24 @@ describe('# Service - test suite for business and processing rules', () => {
         service.removeClientStream(id);
 
         expect(Map.prototype.delete).toHaveBeenCalledWith(id);
+    });
+
+    test('should broadcast', async () => {
+        const service = new Service();
+        const data = 'anything';
+        
+        const mockReadableStream = TestUtil.generateReadableStream([data])
+        const mockWritableStream = TestUtil.generateWritableStream((chunk) => {
+            expect(chunk.toString()).toBe(data);
+        });
+
+        service.clientStreams.set(1, mockWritableStream);
+
+        const broadcast = service.broadcast();
+
+        await pipeline(mockReadableStream, broadcast);
+
+        expect(broadcast).toBeInstanceOf(Writable);
     });
 
     test('should create a file stream and return it', async () => {
