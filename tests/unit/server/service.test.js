@@ -7,9 +7,10 @@ import { PassThrough, Writable } from 'stream';
 import { pipeline } from 'stream/promises';
 import config from '../../../server/config.js';
 import { Service } from '../../../server/service.js';
+import { logger } from '../../../server/util.js';
 import TestUtil from '../_util/testUtil.js';
 
-const { dir: { publicDirectory } } = config;
+const { dir: { publicDirectory }, constants: { fallbackBitRate } } = config;
 
 describe('# Service - test suite for business and processing rules', () => {
     beforeEach(() => {
@@ -106,7 +107,7 @@ describe('# Service - test suite for business and processing rules', () => {
         const args = ['--i', '-B', sound];
         const bitrate = ['128k', '128000'];
 
-        const stderr = TestUtil.generateReadableStream("");
+        const stderr = TestUtil.generateReadableStream('');
         const stdout = TestUtil.generateReadableStream([bitrate[0]]);
 
         jest.spyOn(
@@ -118,6 +119,29 @@ describe('# Service - test suite for business and processing rules', () => {
 
         expect(Service.prototype._executeSoxCommand).toHaveBeenCalledWith(args);
         expect(result).toBe(bitrate[1]);
+    });
+
+    test('should reject when invalid sound file is processed in getBitrate', async () => {
+        const service = new Service();
+        const errorMessage = 'error while testing this method';
+
+        const stderr = TestUtil.generateReadableStream([errorMessage]);
+        const stdout = TestUtil.generateReadableStream('');
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype._executeSoxCommand.name
+        ).mockReturnValue({ stderr, stdout });
+
+        jest.spyOn(
+            logger,
+            'error'
+        );
+
+        const result = await service.getBitrate('invalid.mp3');
+
+        expect(result).toBe(fallbackBitRate);
+        expect(logger.error).toHaveBeenCalledWith(`something went bananas with the bitrate: ${errorMessage}`);
     });
 
     test('should create a file stream and return it', async () => {
