@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, jest, test } from '@jest/globals';
+import crypto from 'crypto';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import { join } from 'path';
+import { PassThrough } from 'stream';
 import config from '../../../server/config.js';
 import { Service } from '../../../server/service.js';
 import TestUtil from '../_util/testUtil.js';
@@ -12,6 +14,26 @@ describe('# Service - test suite for business and processing rules', () => {
     beforeEach(() => {
         jest.restoreAllMocks();
         jest.clearAllMocks();
+    });
+
+    test('should create the client stream with a PassThrough', async () => {
+        const id = 1;
+        const service = new Service();
+
+        jest.spyOn(
+            crypto,
+            crypto.randomUUID.name
+        ).mockReturnValue(id);
+
+        jest.spyOn(
+            Map.prototype,
+            Map.prototype.set.name
+        );
+
+        const clientStream = service.createClientStream();
+
+        expect(clientStream.id).toBe(id);
+        expect(clientStream.clientStream).toBeInstanceOf(PassThrough);
     });
 
     test('should create a file stream and return it', async () => {
