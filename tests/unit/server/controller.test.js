@@ -65,4 +65,37 @@ describe('# Controller - test suite for intermediate layer', () => {
         expect(Service.prototype.removeClientStream).toHaveBeenCalled();
         expect(logger.info).toHaveBeenCalledWith(loggerMessage);
     });
+
+    test('should handle start command', async () => {
+        const { command } = { command: 'start' };
+        const infoMessage = `command received: ${command.command}`;
+        const controller = new Controller();
+
+        jest.spyOn(
+            logger,
+            'info'
+        );
+
+        jest.spyOn(
+            String.prototype,
+            String.prototype.toLowerCase.name,
+        ).mockReturnValue(command);
+
+        jest.spyOn(
+            String.prototype,
+            String.prototype.includes.name
+        );
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype.startStreamming.name
+        );
+
+        const result = await controller.handleCommand('anything');
+
+        expect(logger.info).toHaveBeenCalledWith(infoMessage);
+        expect(String.prototype.includes).toHaveBeenCalledWith(command);
+        expect(Service.prototype.startStreamming).toHaveBeenCalled();
+        expect(result).toStrictEqual({ result: 'ok' });
+    });
 });
