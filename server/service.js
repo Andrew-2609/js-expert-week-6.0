@@ -1,5 +1,5 @@
 import childProcess from 'child_process';
-import { randomUUID } from 'crypto';
+import crypto from 'crypto';
 import { once } from 'events';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
@@ -32,7 +32,7 @@ export class Service {
     }
 
     createClientStream() {
-        const id = randomUUID();
+        const id = crypto.randomUUID();
         const clientStream = new PassThrough();
         this.clientStreams.set(id, clientStream);
 
