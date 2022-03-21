@@ -3,9 +3,13 @@ import portfinder from 'portfinder';
 import { Transform } from 'stream';
 import supertest from 'supertest';
 import { setTimeout } from 'timers/promises';
+import config from '../../../server/config.js';
 import Server from '../../../server/server.js';
+import fsPromises from 'fs/promises';
 
 const RETENTION_DATA_PERIOD = 200 // ms
+const { dir: { publicDirectory }, pages: { homeHTML }, location: { home } } = config;
+
 const getAvailablePort = portfinder.getPortPromise;
 
 describe('# API E2E Suite Test', () => {
@@ -59,7 +63,21 @@ describe('# API E2E Suite Test', () => {
             const response = await server.testServer.get('/');
 
             expect(response.status).toBe(302);
-            expect(response.header.location).toBe('/home');
+            expect(response.header.location).toBe(home);
+
+            server.kill();
+        });
+
+        test('should exibit home page html file', async () => {
+            const server = await getTestServer();
+            const homeFile = await fsPromises.readFile(
+                `${publicDirectory}/${homeHTML}`
+            );
+
+            const { status, text } = await server.testServer.get('/home');
+
+            expect(status).toBe(200);
+            expect(text).toEqual(homeFile.toString());
 
             server.kill();
         });
