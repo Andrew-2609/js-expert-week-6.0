@@ -150,5 +150,16 @@ describe('# API E2E Suite Test', () => {
 
             server.kill();
         });
+
+        test('it should return 404 when nonexistent file is request', async () => {
+            const server = await getTestServer();
+
+            const { status, text } = await server.testServer.get('/home/batata.txt');
+
+            expect(status).toBe(404);
+            expect(text).toBe('');
+
+            server.kill();
+        });
     });
 });
