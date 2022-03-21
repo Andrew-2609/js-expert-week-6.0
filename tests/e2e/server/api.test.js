@@ -134,5 +134,21 @@ describe('# API E2E Suite Test', () => {
 
             server.kill();
         });
+
+        test('it should return styles.css when request', async () => {
+            const server = await getTestServer();
+            const styleCssPath = '/home/css/styles.css';
+            const styleCssFile = await fsPromises.readFile(
+                `${publicDirectory}${styleCssPath}`
+            );
+
+            const { status, header, text } = await server.testServer.get(styleCssPath);
+
+            expect(status).toBe(200);
+            expect(header['content-type']).toBe('text/css');
+            expect(text).toBe(styleCssFile.toString());
+
+            server.kill();
+        });
     });
 });
