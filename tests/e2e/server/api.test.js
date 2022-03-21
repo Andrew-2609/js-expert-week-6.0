@@ -8,7 +8,7 @@ import config from '../../../server/config.js';
 import Server from '../../../server/server.js';
 
 const RETENTION_DATA_PERIOD = 200 // ms
-const { dir: { publicDirectory }, pages: { homeHTML }, location: { home } } = config;
+const { dir: { publicDirectory }, pages: { homeHTML, controllerHTML }, location: { home } } = config;
 
 const getAvailablePort = portfinder.getPortPromise;
 
@@ -68,7 +68,7 @@ describe('# API E2E Suite Test', () => {
             server.kill();
         });
 
-        test('should exibit home page html file', async () => {
+        test('should exibit home page html file when requested', async () => {
             const server = await getTestServer();
             const homeFile = await fsPromises.readFile(
                 `${publicDirectory}/${homeHTML}`
@@ -78,6 +78,20 @@ describe('# API E2E Suite Test', () => {
 
             expect(status).toBe(200);
             expect(text).toEqual(homeFile.toString());
+
+            server.kill();
+        });
+
+        test('should exibit controller page html file when requested', async () => {
+            const server = await getTestServer();
+            const controllerFile = await fsPromises.readFile(
+                `${publicDirectory}/${controllerHTML}`
+            );
+
+            const { status, text } = await server.testServer.get('/controller');
+
+            expect(status).toBe(200);
+            expect(text).toEqual(controllerFile.toString());
 
             server.kill();
         });
