@@ -1,11 +1,11 @@
 import { describe, expect, jest, test } from '@jest/globals';
+import fsPromises from 'fs/promises';
 import portfinder from 'portfinder';
 import { Transform } from 'stream';
 import supertest from 'supertest';
 import { setTimeout } from 'timers/promises';
 import config from '../../../server/config.js';
 import Server from '../../../server/server.js';
-import fsPromises from 'fs/promises';
 
 const RETENTION_DATA_PERIOD = 200 // ms
 const { dir: { publicDirectory }, pages: { homeHTML }, location: { home } } = config;
