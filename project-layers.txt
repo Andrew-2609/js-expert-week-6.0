@@ -5,3 +5,9 @@ server
     server = responsible for creating the server (but doesn't instantiate it)
     index = instantiate the server and expose it to the web (next to the infrastructure)
     config = where all static configuration needs to be
+
+client
+    service = everything related to business and processing rules
+    controller = intermediate the view and the service
+    view = every HTML element (visualization)
+    index = factory = initializes everything
