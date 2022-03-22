@@ -16,6 +16,9 @@ const {
         fxDirectory
     },
     constants: {
+        audioMediaType,
+        soundVolume,
+        fxVolume,
         fallbackBitRate,
         bitrateDivisor,
         englishConversation
@@ -147,6 +150,51 @@ export class Service {
         }
 
         return join(fxDirectory, chosenSound);
+    }
+
+    appendFxToStream(fx) {
+        const throttleTransformable = new Throttle(this.currentBitrate);
+
+        streamPromises.pipeline(
+            throttleTransformable,
+            this.broadcast()
+        );
+
+        const unpipe = () => {
+            const transformStream = this.mergeAudioStreams(fx, this.currentReadable);
+            this.throttleTransform = throttleTransformable;
+            this.currentReadable = transformStream;
+            this.currentReadable.removeListener('unpipe', unpipe);
+
+            streamPromises.pipeline(transformStream, throttleTransformable);
+        }
+
+        this.throttleTransform.on('unpipe', unpipe);
+        this.throttleTransform.pause();
+        this.currentReadable.unpipe(this.throttleTransform);
+    }
+
+    mergeAudioStreams(sound, readableStream) {
+        const transformStream = PassThrough();
+        const args = [
+            '-t', audioMediaType,
+            '-v', soundVolume,
+            '-m', '-', // the '-' is to receive it as a Stream
+            '-t', audioMediaType,
+            '-v', fxVolume,
+            sound,
+            '-t', audioMediaType,
+            '-' // the '-' is to return it as a Stream
+        ];
+
+        const { stdout, stdin } = this._executeSoxCommand(args);
+
+        // plug the conversation Stream in the data input of the terminal
+        streamPromises.pipeline(readableStream, stdin).catch(error => `error on sending stream to sox: ${error}`);
+
+        streamPromises.pipeline(stdout, transformStream).catch(error => `error on receiving stream from sox: ${error}`);
+
+        return transformStream;
     }
 
 };
