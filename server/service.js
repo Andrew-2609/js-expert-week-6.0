@@ -12,7 +12,8 @@ import { logger } from './util.js';
 
 const {
     dir: {
-        publicDirectory
+        publicDirectory,
+        fxDirectory
     },
     constants: {
         fallbackBitRate,
@@ -135,6 +136,17 @@ export class Service {
             stream: this.createFileStream(name),
             type: type
         };
+    }
+
+    async getFxByName(fxName) {
+        const sounds = await fsPromises.readdir(fxDirectory);
+        const chosenSound = sounds.find(filename => filename.toLowerCase().includes(fxName));
+
+        if (!chosenSound) {
+            return Promise.reject(`the sound effect ${fxName} wasn't found!`);
+        }
+
+        return join(fxDirectory, chosenSound);
     }
 
 };
