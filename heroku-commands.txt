@@ -15,3 +15,5 @@ My steps:
 
     11. heroku open // open your application in your default browser
     12. heroku logs -t -a {your heroku app name} // see the latest logs of your heroku app
+
+    13. heroku apps:delete // in case you want to delete your app in heroku
