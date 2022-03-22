@@ -3,4 +3,8 @@ export default class Controller {
         this.view = view;
         this.service = service;
     }
+
+    static initialize(dependencies) {
+        return new Controller(dependencies);
+    }
 };
