@@ -49,6 +49,23 @@ describe('# View - test suite for presentation layer', () => {
         expect(btn.onClick.name).toStrictEqual('onClickReset');
         expect(() => btn.onClick()).not.toThrow();
     });
-    test.todo('#changeCommandButtonsVisibility - given hide=false it should remove unassigned class and reset on click');
+
+    test('#changeCommandButtonsVisibility - given hide=false it should remove unassigned class and reset on click', () => {
+        const view = new View();
+        const btn = makeBtnElement();
+
+        jest.spyOn(
+            document,
+            document.querySelectorAll.name
+        ).mockReturnValue([btn]);
+
+        view.changeCommandButtonsVisibility(false);
+
+        expect(btn.classList.add).not.toHaveBeenCalledWith();
+        expect(btn.classList.remove).toHaveBeenCalledWith('unassigned');
+        expect(btn.onClick.name).toStrictEqual('onClickReset');
+        expect(() => btn.onClick()).not.toThrow();
+    });
+    
     test.todo('#onLoad');
 });
