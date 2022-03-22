@@ -25,6 +25,8 @@ button {
   font-family: 'Permanent Marker', cursive;
   font-size: 1.3rem;
   transition: all 250ms;
+  min-width: 8rem;
+  min-height: 8rem;
   box-shadow: 1px 1px 0px #0e3c17,
               1px 2px 0px #0e3c17,
               1px 3px 0px #0e3c17,
@@ -32,6 +34,19 @@ button {
               1px 5px 0px #0e3c17,
               1px 6px 0px #0e3c17,
               1px 7px 0px #0e3c17;
+}
+
+button#roar {
+  background-image: url(https://static.thenounproject.com/png/168650-200.png);
+}
+
+button#hadouken {
+  background-image: url(https://s3.amazonaws.com/soundfxcenter/070961_ken.png);
+}
+
+button#hadouken, button#roar {
+  background-size: cover;
+  color: transparent;
 }
 
 button.active {
