@@ -82,11 +82,13 @@ export default class View {
         if (active) {
             this.btnStart.classList.add('hidden');
             this.btnStop.classList.remove('hidden');
+            window.onbeforeunload = () => { return 'Reloading the page will probably break the controls!' }; // ask the user not to reload the page
             return;
         }
 
         this.btnStart.classList.remove('hidden');
         this.btnStop.classList.add('hidden');
+        window.onbeforeunload = () => { };
     }
 
     toggleDisableCommandBtn(classList) {
