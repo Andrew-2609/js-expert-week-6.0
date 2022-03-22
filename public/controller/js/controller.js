@@ -11,7 +11,9 @@ export default class Controller {
     }
 
     async onCommandReceived(text) {
-        console.log('controller', text);
+        return this.service.makeRequest({
+            command: text
+        });
     }
 
     onLoad() {
