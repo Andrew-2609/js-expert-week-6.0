@@ -66,6 +66,17 @@ describe('# View - test suite for presentation layer', () => {
         expect(btn.onClick.name).toStrictEqual('onClickReset');
         expect(() => btn.onClick()).not.toThrow();
     });
-    
-    test.todo('#onLoad');
+
+    test('#onLoad', () => {
+        const view = new View();
+
+        jest.spyOn(
+            view,
+            view.changeCommandButtonsVisibility.name
+        );
+
+        view.onLoad();
+
+        expect(view.changeCommandButtonsVisibility).toHaveBeenCalled();
+    });
 });
