@@ -10,12 +10,12 @@ export default class Controller {
         return controller;
     }
 
-    async commandReceived(text) {
+    async onCommandReceived(text) {
         console.log('controller', text);
     }
 
     onLoad() {
-        this.view.configureOnBtnClick(this.commandReceived.bind(this));
+        this.view.configureOnBtnClick(this.onCommandReceived.bind(this));
         this.view.onLoad();
     }
 };
