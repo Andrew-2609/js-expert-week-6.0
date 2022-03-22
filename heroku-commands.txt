@@ -1,12 +1,17 @@
 My steps:
-    1. create heroku.yml file
-    2. npm i -g heroku // install heroku globally
-    3. heroku login
+    01. create heroku.yml file
+    02. npm i -g heroku // install heroku globally
+    03. heroku login
     
-    4. git init // if this project isn't a git repository already
-    5. npx ignore node // if node_modules isn't already ignored
-    6. add and commit the project files
+    04. git init // if this project isn't a git repository already
+    05. npx ignore node // if node_modules isn't already ignored
+    06. add and commit the project files
 
-    7. heroku apps:create spotify-radio (or any other available name) // create the app in heroku
-    8. git remote -v // check if the app was successfully created and added to your remote
-    9. heroku stack:set container // set heroku stack to container
+    07. heroku apps:create spotify-radio (or any other available name) // create the app in heroku
+    08. git remote -v // check if the app was successfully created and added to your remote
+    09. heroku stack:set container // set heroku stack to container
+
+    10. git push heroku main // push changes into your heroku app
+
+    11. heroku open // open your application in your default browser
+    12. heroku logs -t -a {your heroku app name} // see the latest logs of your heroku app
