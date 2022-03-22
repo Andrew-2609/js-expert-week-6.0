@@ -1,5 +1,6 @@
-import { beforeEach, describe, jest, test } from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
 import { JSDOM } from 'jsdom';
+import View from '../../../public/controller/js/view.js';
 
 describe('# View - test suite for presentation layer', () => {
     const dom = new JSDOM();
@@ -33,7 +34,21 @@ describe('# View - test suite for presentation layer', () => {
         ).mockReturnThis(makeBtnElement());
     });
 
-    test.todo('#changeCommandButtonsVisibility - given hide=true it should add unassigned class and reset on click');
+    test('#changeCommandButtonsVisibility - given hide=true it should add unassigned class and reset on click', () => {
+        const view = new View();
+        const btn = makeBtnElement();
+
+        jest.spyOn(
+            document,
+            document.querySelectorAll.name
+        ).mockReturnValue([btn]);
+
+        view.changeCommandButtonsVisibility();
+
+        expect(btn.classList.add).toHaveBeenCalledWith('unassigned');
+        expect(btn.onClick.name).toStrictEqual('onClickReset');
+        expect(() => btn.onClick()).not.toThrow();
+    });
     test.todo('#changeCommandButtonsVisibility - given hide=false it should remove unassigned class and reset on click');
     test.todo('#onLoad');
 });
