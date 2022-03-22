@@ -29,7 +29,6 @@ export default class View {
         srcElement: { innerText }
     }) {
         const btnText = innerText;
-        console.log({ btnText });
         await this.onBtnClick(btnText);
     }
 };
