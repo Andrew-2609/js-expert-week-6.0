@@ -9,6 +9,8 @@ export default class View {
 
         async function onBtnClick() { };
         this.onBtnClick = onBtnClick;
+
+        this.DISABLE_BTN_TIMEOUT = 175; // ms
     }
 
     onLoad() {
@@ -51,6 +53,14 @@ export default class View {
         return this.onBtnClick(innerText);
     }
 
+    async onCommandClicked(btn) {
+        const { srcElement: { classList, innerText } } = btn;
+
+        this.toggleDisableCommandBtn(classList);
+        await this.onBtnClick(innerText);
+        setTimeout(() => this.toggleDisableCommandBtn(classList), this.DISABLE_BTN_TIMEOUT);
+    }
+
     setupBtnAction(btn) {
         const text = btn.innerText.toLowerCase();
         if (text.includes('start')) return;
@@ -59,6 +69,8 @@ export default class View {
             btn.onclick = this.onStopButtonClicked.bind(this);
             return;
         }
+
+        btn.onclick = this.onCommandClicked.bind(this);
     }
 
     isUnassigned(btn) {
@@ -75,5 +87,14 @@ export default class View {
 
         this.btnStart.classList.remove('hidden');
         this.btnStop.classList.add('hidden');
+    }
+
+    toggleDisableCommandBtn(classList) {
+        if (classList.contains('active')) {
+            classList.remove('active');
+            return;
+        }
+
+        classList.add('active');
     }
 };
