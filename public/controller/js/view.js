@@ -30,5 +30,18 @@ export default class View {
     }) {
         const btnText = innerText;
         await this.onBtnClick(btnText);
+        this.toggleBtnStart();
+        this.changeCommandButtonsVisibility(false);
+    }
+
+    toggleBtnStart(active = true) {
+        if (active) {
+            this.btnStart.classList.add('hidden');
+            this.btnStop.classList.remove('hidden');
+            return;
+        }
+
+        this.btnStart.classList.remove('hidden');
+        this.btnStop.classList.add('hidden');
     }
 };
