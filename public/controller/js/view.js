@@ -9,7 +9,7 @@ export default class View {
                 const fn = hide ? 'add' : 'remove';
                 btn.classList[fn]('unassigned');
                 function onClickReset() { }
-                btn.onclick = onClickReset;
+                btn.onClick = onClickReset;
             });
     }
 };
