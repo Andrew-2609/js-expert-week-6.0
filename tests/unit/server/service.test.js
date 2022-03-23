@@ -5,6 +5,7 @@ import fsPromises from 'fs/promises';
 import { join } from 'path';
 import { PassThrough, Writable } from 'stream';
 import StreamPromises from 'stream/promises';
+import Throttle from 'throttle';
 import config from '../../../server/config.js';
 import { Service } from '../../../server/service.js';
 import { logger } from '../../../server/util.js';
@@ -228,6 +229,75 @@ describe('# Service - test suite for business and processing rules', () => {
         ).mockResolvedValue(mockedSoundsInFolder);
 
         expect(service.getFxByName(fxName)).rejects.toEqual(rejectMessage);
+    });
+
+    test('should append sound effect to current stream', async () => {
+        const service = new Service();
+        const fxName = 'hadouken';
+
+        service.throttleTransform = new PassThrough();
+        service.currentReadable = TestUtil.generateReadableStream(['anything']);
+
+        const mergedThrottleTransformMock = new PassThrough();
+        const writableBroadcastMock = TestUtil.generateWritableStream(() => { });
+
+        jest.spyOn(
+            StreamPromises,
+            StreamPromises.pipeline.name
+        )
+            .mockResolvedValueOnce('first call')
+            .mockResolvedValueOnce('second call');
+
+        jest.spyOn(
+            service,
+            service.broadcast.name
+        ).mockReturnValue(writableBroadcastMock);
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype.mergeAudioStreams.name
+        ).mockReturnValue(mergedThrottleTransformMock);
+
+        jest.spyOn(
+            mergedThrottleTransformMock,
+            'removeListener'
+        ).mockReturnValue();
+
+        jest.spyOn(
+            service.throttleTransform,
+            'pause'
+        );
+
+        jest.spyOn(
+            service.currentReadable,
+            'unpipe'
+        ).mockImplementation();
+
+        service.appendFxToStream(fxName);
+
+        expect(service.throttleTransform.pause).toHaveBeenCalled();
+        expect(service.currentReadable.unpipe).toHaveBeenCalledWith(service.throttleTransform);
+
+        service.throttleTransform.emit('unpipe');
+
+        const [firstCall, secondCall] = StreamPromises.pipeline.mock.calls;
+        const [firstCallResult, secondCallResult] = StreamPromises.pipeline.mock.results;
+
+        const [firstThrottleTransformCall, firstBroadcastCall] = firstCall;
+
+        expect(firstThrottleTransformCall).toBeInstanceOf(Throttle);
+        expect(firstBroadcastCall).toStrictEqual(writableBroadcastMock);
+
+        const [firstResult, secondResult] = await Promise.all([firstCallResult.value, secondCallResult.value]);
+
+        expect(firstResult).toStrictEqual('first call');
+        expect(secondResult).toStrictEqual('second call');
+
+        const [secondMergedStreamCall, secondThrottleTransformCall] = secondCall;
+
+        expect(secondMergedStreamCall).toStrictEqual(mergedThrottleTransformMock);
+        expect(secondThrottleTransformCall).toBeInstanceOf(Throttle);
+        expect(service.currentReadable.removeListener).toHaveBeenCalled();
     });
 
     test('should start streamming', async () => {
