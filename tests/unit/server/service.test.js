@@ -10,7 +10,7 @@ import { Service } from '../../../server/service.js';
 import { logger } from '../../../server/util.js';
 import TestUtil from '../_util/testUtil.js';
 
-const { dir: { publicDirectory }, constants: { fallbackBitRate, englishConversation } } = config;
+const { dir: { publicDirectory, fxDirectory }, constants: { fallbackBitRate, englishConversation } } = config;
 
 describe('# Service - test suite for business and processing rules', () => {
     beforeEach(() => {
@@ -198,6 +198,36 @@ describe('# Service - test suite for business and processing rules', () => {
             stream: mockFileStream,
             type: '.html'
         });
+    });
+
+    test('should get the sound effect by its name', async () => {
+        const fxName = 'hadouken';
+        const mockedSoundsInFolder = ['Hadouken (128 kpbs)'];
+        const service = new Service();
+
+        jest.spyOn(
+            fsPromises,
+            fsPromises.readdir.name
+        ).mockResolvedValue(mockedSoundsInFolder);
+
+        const result = await service.getFxByName(fxName);
+
+        expect(result).toStrictEqual(join(fxDirectory, mockedSoundsInFolder[0]));
+    });
+
+    test('should reject nonexistent sound effect', () => {
+        const fxName = 'hadouken';
+        const mockedSoundsInFolder = ['Any Other Sound Effects'];
+        const rejectMessage = `the sound effect ${fxName} wasn't found!`;
+
+        const service = new Service();
+
+        jest.spyOn(
+            fsPromises,
+            fsPromises.readdir.name
+        ).mockResolvedValue(mockedSoundsInFolder);
+
+        expect(service.getFxByName(fxName)).rejects.toEqual(rejectMessage);
     });
 
     test('should start streamming', async () => {
