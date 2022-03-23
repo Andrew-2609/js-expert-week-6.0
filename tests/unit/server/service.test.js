@@ -231,6 +231,7 @@ describe('# Service - test suite for business and processing rules', () => {
         expect(service.getFxByName(fxName)).rejects.toEqual(rejectMessage);
     });
 
+    // I must confess that I don't fully understand this code (03.23.2022 00:37:23)
     test('should append sound effect to current stream', async () => {
         const service = new Service();
         const fxName = 'hadouken';
