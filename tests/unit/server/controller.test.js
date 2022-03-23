@@ -132,30 +132,46 @@ describe('# Controller - test suite for intermediate layer', () => {
         expect(result).toStrictEqual({ result: 'ok' });
     });
 
-    test('should return undefined when nonexistent command is given', async () => {
-        const { command } = { command: 'stup' };
-        const infoMessage = `command received: ${command.command}`;
+    test('should append sound effect to stream when handling given command', async () => {
+        const inputData = { command: 'roar' };
+        const chosenFx = 'T-Rex Roaring (128 kbps).mp3';
+        const infoMessage = `added fx to service: ${chosenFx}`;
         const controller = new Controller();
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype.getFxByName.name
+        ).mockResolvedValue(chosenFx);
+
+        jest.spyOn(
+            Service.prototype,
+            Service.prototype.appendFxToStream.name
+        ).mockReturnValue();
 
         jest.spyOn(
             logger,
             'info'
         );
 
-        jest.spyOn(
-            String.prototype,
-            String.prototype.toLowerCase.name,
-        ).mockReturnValue(command);
+        const result = await controller.handleCommand(inputData);
+
+        expect(Service.prototype.getFxByName).toHaveBeenCalledWith(inputData.command.toLowerCase());
+        expect(logger.info).toHaveBeenCalledWith(infoMessage);
+        expect(Service.prototype.appendFxToStream).toHaveBeenCalledWith(chosenFx);
+        expect(result).toStrictEqual({ result: 'ok' });
+    });
+
+    test('should reject nonexistent command', () => {
+        const inputData = { command: 'aplausos' };
+        const rejectMessage = `the sound effect ${inputData.command} wasn't found!`;
+        const controller = new Controller();
 
         jest.spyOn(
-            String.prototype,
-            String.prototype.includes.name
+            Service.prototype,
+            Service.prototype.appendFxToStream.name
         );
 
-        const result = await controller.handleCommand('anything');
-
-        expect(logger.info).toHaveBeenCalledWith(infoMessage);
-        expect(String.prototype.includes).not.toHaveBeenCalledWith(command);
-        expect(result).toBeUndefined();
+        expect(controller.handleCommand(inputData)).rejects.toEqual(rejectMessage);
+        expect(Service.prototype.appendFxToStream).not.toHaveBeenCalled();
     });
 });
