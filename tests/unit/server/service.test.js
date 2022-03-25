@@ -11,7 +11,10 @@ import { Service } from '../../../server/service.js';
 import { logger } from '../../../server/util.js';
 import TestUtil from '../_util/testUtil.js';
 
-const { dir: { publicDirectory, fxDirectory }, constants: { fallbackBitRate, englishConversation } } = config;
+const {
+    dir: { publicDirectory, fxDirectory },
+    constants: { audioMediaType, soundVolume, fxVolume, fallbackBitRate, englishConversation }
+} = config;
 
 describe('# Service - test suite for business and processing rules', () => {
     beforeEach(() => {
@@ -299,6 +302,52 @@ describe('# Service - test suite for business and processing rules', () => {
         expect(secondMergedStreamCall).toStrictEqual(mergedThrottleTransformMock);
         expect(secondThrottleTransformCall).toBeInstanceOf(Throttle);
         expect(service.currentReadable.removeListener).toHaveBeenCalled();
+    });
+
+    test('should merge audio streams', async () => {
+        const service = new Service();
+        service.currentReadable = TestUtil.generateReadableStream(['anything']);
+
+        const sound = 'anySound.mp3';
+        const args = [
+            '-t', audioMediaType,
+            '-v', soundVolume,
+            '-m', '-',
+            '-t', audioMediaType,
+            '-v', fxVolume,
+            sound,
+            '-t', audioMediaType,
+            '-'
+        ];
+
+        const stdin = TestUtil.generateWritableStream(() => { });
+        const stdout = TestUtil.generateReadableStream(['anything']);
+
+        jest.spyOn(
+            service,
+            service._executeSoxCommand.name
+        ).mockReturnValue({ stdin, stdout });
+
+        jest.spyOn(
+            StreamPromises,
+            StreamPromises.pipeline.name
+        )
+            .mockResolvedValueOnce('first call')
+            .mockResolvedValueOnce('second call');
+
+        const transformStream = service.mergeAudioStreams(sound, service.currentReadable);
+
+        const [firstCallResult, secondCallResult] = StreamPromises.pipeline.mock.results;
+        const [firstResult, secondResult] = await Promise.all([firstCallResult.value, secondCallResult.value]);
+
+        expect(service._executeSoxCommand).toHaveBeenCalledWith(args);
+
+        expect(StreamPromises.pipeline).toHaveBeenCalledWith(service.currentReadable, stdin);
+        expect(StreamPromises.pipeline).toHaveBeenCalledWith(stdout, expect.any(PassThrough));
+
+        expect(transformStream).toBeInstanceOf(PassThrough);
+        expect(firstResult).toStrictEqual('first call');
+        expect(secondResult).toStrictEqual('second call');
     });
 
     test('should start streamming', async () => {
