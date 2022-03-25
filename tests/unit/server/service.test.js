@@ -350,6 +350,30 @@ describe('# Service - test suite for business and processing rules', () => {
         expect(secondResult).toStrictEqual('second call');
     });
 
+    test('should throw an error while sending and receiving streams to/from sox', async () => {
+        const service = new Service();
+
+        const [
+            firstErrorMessage,
+            secondErrorMessage
+        ] = ['error sending stream to sox', 'error receiving stream from sox'];
+
+        service.currentReadable = TestUtil.generateReadableStream(['anything']);
+
+        jest.spyOn(
+            StreamPromises,
+            StreamPromises.pipeline.name
+        ).mockRejectedValueOnce(firstErrorMessage).mockRejectedValueOnce(secondErrorMessage);
+
+        const transformStream = service.mergeAudioStreams('anySound.mp3', service.currentReadable);
+
+        const [firstCallResult, secondCallResult] = StreamPromises.pipeline.mock.results;
+
+        expect(firstCallResult.value).rejects.toBe(firstErrorMessage);
+        expect(secondCallResult.value).rejects.toBe(secondErrorMessage);
+        expect(transformStream).toBeInstanceOf(PassThrough);
+    });
+
     test('should start streamming', async () => {
         const service = new Service();
         const mockFileStream = TestUtil.generateReadableStream(['anything']);
